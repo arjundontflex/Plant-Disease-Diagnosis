@@ -10,4 +10,4 @@ https://github.com/animesh1012/machineLearning/tree/main/Plant_Disease_Predictio
 
 https://github.com/SAURABHSINGHDHAMI/Plant-Disease-Detection/blob/main/Plant_Disease_Detection.ipynb
 
-Demo-Model - `https://drive.google.com/file/d/1YaTxCfjO8LkSaOjlcRJCC32YGTt5ybqX/view?usp=sharing`
+Demo-Model - https://drive.google.com/file/d/1YaTxCfjO8LkSaOjlcRJCC32YGTt5ybqX/view?usp=sharing
