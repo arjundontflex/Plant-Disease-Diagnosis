@@ -1,51 +1,55 @@
 from langchain.chains import RetrievalQA
-from langchain.llms import OpenAI
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAI, OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.document_loaders import TextLoader
 
-# Loading data info
-loader = TextLoader(r"C:\Users\asush\Downloads\plants_diseases.txt") 
+# Load data
+loader = TextLoader(r"C:\Users\asush\Downloads\plants_diseases.txt")
 documents = loader.load()
 
 # Embedding
 embeddings = OpenAIEmbeddings()
 
-# LLM config
+# LLM config - you might still need OpenAI LLM, 
+# but will rely on retrieval outputs
 llm = OpenAI(
-    temperature=0.7,
-  
+    temperature=0.0,  # Lower temperature to minimize generation randomness
 )
 
-# Create a RetrievalQA chain with OpenAI LLM and Chroma vectorstore
+# Create a RetrievalQA chain strictly using the vectorstore
 vectorstore = Chroma.from_documents(documents, embeddings)
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
-    chain_type="stuff",  # Use "stuff" for a simple approach
+    chain_type="map_reduce",  # Use map_reduce to focus on document aggregation
     retriever=vectorstore.as_retriever(),
 )
 
-# Function to get plant disease information from user input
-def get_disease_info(disease_name):
+# Function to get plant disease information based on a query
+def get_disease_info(query):
     """
-    Gets information about a plant disease, including symptoms, causes, prevention, and treatment.
+    Gets information about a plant disease based on a user's query.
 
     Args:
-        disease_name (str): The name of the disease.
+        query (str): The user's query about the disease.
 
     Returns:
-        str: A string containing information about the disease.
+        str: A string containing information in response to the query.
     """
-    query = f"What are the symptoms, causes, prevention, and treatment for {disease_name}?"
-    
-    result = qa_chain.invoke({"query": query})  
+    result = qa_chain.invoke({"query": query})
+    return result['result']
 
-    # Extract the result from dictionary
-    return result['result']  
-
-# Get disease information from user input
+# Interactive loop for user input
 if __name__ == "__main__":
-    disease_name = input("Enter the name of the plant disease: ")
-    disease_info = get_disease_info(disease_name)
+    initial_disease_name = input("Enter the name of the plant disease: ")
+    initial_query = f"What are the symptoms, causes, prevention, and treatment for {initial_disease_name}?"
+    disease_info = get_disease_info(initial_query)
     print("\nDisease Information:")
     print(disease_info)
+    
+    while True:
+        follow_up_question = input("\nDo you have any follow-up questions about this disease? (just press enter to exit): ").strip()
+        if not follow_up_question:
+            break
+        follow_up_info = get_disease_info(follow_up_question)
+        print("\nAdditional Information:")
+        print(follow_up_info)
